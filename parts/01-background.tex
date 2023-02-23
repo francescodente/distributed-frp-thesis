@@ -4,6 +4,7 @@
 This chapter gives an high level overview of the concepts, paradigms, and frameworks that were used as references throughout the development of this thesis.
 
 \section{Functional programming}
+\label{sec:fp}
 
 \textit{Functional Programming} is a programming paradigm in which computation is expressed as a transformation of inputs into outputs using functions and function composition.
 %
@@ -62,7 +63,9 @@ Functional programming proposes the idea of \textit{functions as first-class cit
 %
 Therefore a function can take functions as arguments or return functions as outputs, in which case is called an \textit{higher order function}.
 
-\section{Scala}
+% TODO: add a section for compositionality.
+
+\section{Scala 3}
 
 Scala is a programming language built on top of the Java Virtual Machine (JVM), with support for both the \textit{object-oriented} and the \textit{functional} paradigms \cite{scala-lang-spec}, effectively making it a \textit{multi-paradigm language}.
 %
@@ -79,29 +82,29 @@ The main features of Scala are:
     \item flexible syntax that makes it a scalable language;
 \end{itemize}
 
-The most recent version of Scala (at the time of writing) is Scala 3, which is the version that has been used during development.
+The most recent version of Scala (at the time of writing) is Scala 3 \cite{scala3-reference}, which is the version that has been used during development.
 %
-Scala 3 introduces several new constructs and improvements over its predecessor \cite{new-in-scala-3}.
+Scala 3 introduces several new constructs and improvements over its predecessor \cite{new-in-scala-3}, that were considered to be necessary to streamline the development process and allow for a concise and conveying syntax.
 %
-The most relevant can be summarized as follows:
+The most relevant that were also used for this project can be summarized as follows:
 %
 \begin{itemize}
     \item \textbf{optional braces} introduce the ability to use a python-like syntax that controls scopes through indentation;
-    \item \textbf{enumerations} improve on the traditional way of defining \textit{algebraic data types} (see \Cref{sec:algebraic-data-types}) that required the use of \texttt{sealed trait}s;
+    \item \textbf{enumerations} improve on the traditional way of defining \textit{algebraic data types} (see \Cref{sec:enums}) that required the use of \texttt{sealed trait}s;
     \item \textbf{improved contextual abstractions} replace the use of the old \texttt{implicit}s with new constructs that better convey the developer's intent, in particular:
     \begin{itemize}
         \item \texttt{using} clauses allow methods to abstract over information that is available in the calling context and that should be passed implicitly (see \Cref{sec:given-using});
-        \item \texttt{given} instances define canonical values for types that can be passed implicitly (see \Cref{sec:given-using}) and are typically used to define \textit{type class instances} (see \Cref{sec:type-classes});
+        \item \texttt{given} instances define canonical values for types that can be passed implicitly (see \Cref{sec:given-using}) and are typically used to define \textit{type class instances};
         \item \texttt{extension} methods allow developers to attach methods to types after their definition (see \Cref{sec:extension-methods});
         \item implicit conversions let the compiler view a type as another and perform conversions without explicit casting;
         \item context functions define types of functions that only take context parameters (see \Cref{sec:context-functions});
     \end{itemize}
 \end{itemize}
 
-The following sections give more details on these constructs, along with other advanced features of Scala that were leveraged in the development phase.
+The following sections give more details on these constructs.
 
-\subsection{Algebraic data types}
-\label{sec:algebraic-data-types}
+\subsection{Enumerations and algebraic data types}
+\label{sec:enums}
 
 An algebraic data type (ADT) is a structured type defined as a composition of other types, which can in turn be other ADTs or atomic types.
 %
@@ -153,7 +156,7 @@ enum Tree[T]:
   case Node(x: T, left: Tree[T], right: Tree[T])
 \end{lstlisting}
 %
-which is more succinct and less noisy.
+which is more succinct and avoids the noise required by its predecessor.
 
 Finally, both approaches are well suited to be used with pattern matching (although only Scala 3 is shown here).
 %
@@ -178,8 +181,6 @@ val aTree = Node(
 
 println(stringify(aTree)) // 1[2[3,4],5]
 \end{lstlisting}
-
-\subsection{Mixins}
 
 \subsection{Using clauses and given instances}
 \label{sec:given-using}
@@ -238,21 +239,155 @@ printBoth("A", "B")
 printBoth("A", "B")(using printer)
 \end{lstlisting}
 
+Note that, just like \texttt{implicit} parameters, \texttt{using} parameters are available as \texttt{given}s inside the scope of the method or function they are declared in.
+%
+This makes the following snippet valid Scala code:
+%
+\begin{lstlisting}[frame=single, language=scala]
+def nPrintBoth(x: Any, y: Any)(n: Int)(using Printer): Unit =
+  (1 to n).foreach(_ => printBoth(x, y))
+\end{lstlisting}
+%
+Also note that Scala 3 lets the developer omit \texttt{using} parameters names, since most of the times they are in turn passed downstream implicitly.
+%
+In those cases, they are accessible through the \texttt{summon[T]} method, which finds the given instance of type \texttt{T} available in the current context.
+
 \subsection{Extension methods}
 \label{sec:extension-methods}
 
+Scala 3 introduced extension methods following the same principles that inspired the \texttt{given}/\texttt{using} keywords, that is the overloaded meaning of the \texttt{implicit} keyword.
+%
+In fact, prior to this version extension methods were also written using that keyword, in particular by using \texttt{implicit class}es.
+%
+The following listing shows how it was done:
+%
+\begin{lstlisting}[frame=single, language=scala]
+object Extensions {
+  implicit class RichInt(x: Int) {
+    def isDivisibleBy(other: Int): Boolean = x % other == 0
+  }
+}
 
+import Extensions._
+println(10.isDivisibleBy(5))
+\end{lstlisting}
+%
+Other than the use of an overloaded keyword, this approach had the disadvantage of having to come up with a name for the implicit class, that would however never be referenced again afterwards.
+
+Scala 3 solved this issue by adding the \texttt{extension} keyword.
+%
+The previous code, re-written in Scala 3, would be as follows:
+%
+\begin{lstlisting}[frame=single, language=scala]
+object Extensions:
+  extension (x: Int)
+    def isDivisibleBy(other: Int): Boolean = x % other == 0
+
+import Extensions._
+println(10.isDivisibleBy(5))
+\end{lstlisting}
 
 \subsection{Context functions}
 \label{sec:context-functions}
 
-\subsection{Type classes}
-\label{sec:type-classes}
+\textit{Context functions} are a completely new feature of Scala 3, allowing developers to create function types that only accept \textit{context parameters}.
 
-\subsection{Higher kinded types}
+A context function type is written as
+\begin{verbatim}
+(T1, ..., Tn) ?=> U
+\end{verbatim}
+which represents a function accepting \texttt{n} context arguments with types \texttt{(T1, ..., Tn)} and returning a value of type \texttt{U}.
+%
+Context functions can be used just as normal functions, but they have special syntax for passing and getting arguments implicitly.
+
+Consider the following snippet:
+%
+\begin{lstlisting}[frame=single, language=scala]
+given world: String = "World"
+
+def greet(how: String ?=> String): Unit = println(how)
+// def greet(how: String ?=> String): Unit = println(how(using world))
+
+// The following lines are equivalent.
+greet(s"Hello ${summon[String]}")
+greet(who ?=> s"Hello $who")
+\end{lstlisting}
+%
+Here \texttt{greet()} is a method accepting a context function whose context parameter is of type \texttt{String} and also returns a \texttt{String}.
+%
+Note that the implementation of \texttt{greet()} invokes \texttt{how} by letting the compiler synthesize its argument implicitly, using the \texttt{given String} declared at the top of the snippet.
+%
+Moreover, both invocations of \texttt{greet()} are equivalent since Scala expands the first expression to a context function literal behind the scenes.
+
+In general, if an expression \texttt{E} is expected to have a context function type \texttt{(T1, ..., Tn) ?=> U} and it is not already a context function literal, it is re-written as \texttt{(x1: T1, ..., xn: Tn) ?=> E} automatically by the compiler.
+%
+Also, while type-checking \texttt{E}, its arguments are available as givens, which means that they are accessible using \texttt{summon[T]}.
 
 \section{Aggregate computing}
 
-\section{ScaFi}
+\subsection{ScaFi}
 
 \section{Functional reactive programming}
+
+\textit{Functional Reactive Programming} (FRP) is a style of programming that unifies the approaches of \textit{Reactive Programming} (RP, see \Cref{sec:rp}) and \textit{Functional Programming} (FP, see \Cref{sec:fp}) to tame the complexity of \textit{event-driven interactive applications}.
+%
+More precisely, it is an improvement over RP that takes concepts from FP to add certain guarantees on top of it.
+%
+In particular, the most important principle borrowed from FP is \textit{compositionality}, since FRP is built on top of the idea that the nature of the parts doesn't change when composing them.
+%
+This is further explained in \Cref{sec:rp-to-frp}.
+
+The following sections describe the conceptual evolution of the paradigms used to deal with event-driven scenarios, starting from the traditional \textit{observer pattern} evolving first into \textit{RP} and then into \textit{FRP}.
+%
+The discussion is primarily based on the book \cite{blackheath2016functional} and on the \textbf{Sodium} library written by the authors of the book (see \Cref{sec:sodium} for further details).
+
+\subsection{Limitations of the observer pattern}
+
+The observer pattern is a way to define event-driven logic by registering \textit{callbacks} (or \textit{listeners}) to the sources of events, creating a one-to-many dependency from the producer of events to its consumers.
+%
+This is the traditional (and mainstream) approach to dealing with stateful, event-driven logic, which is typically associated with applications like GUIs or games.
+
+Typically, the observer pattern is associated to some \textit{state machine} that implements the \textit{domain logic} while encapsulating the application \textit{state}.
+%
+This model can be described as follows:
+%
+\begin{itemize}
+    \item an event gets pushed to the listener;
+    \item the listener activates the logic based on the input event and on the current state;
+    \item the logic updates the current state;
+    \item the logic may produce some output that is not fed back into the state.
+\end{itemize}
+
+While the observer pattern can be pretty straightforward for simple enough scenarios, the growing complexity of modern event-driven applications brings to light some of its shortcomings, which are called by the book \quotes{the six plagues of listeners}:
+%
+\begin{itemize}
+    \item \textit{unpredictable order}: since listeners are typically notified in the order they are registered in, keeping track of the temporal dependencies between listeners can become infeasible and lead to unpredictable behavior;
+    \item \textit{missed first event}: it can be difficult to guarantee that listeners are registered before the first event is sent;
+    \item \textit{messy state}: traditional state machines are hard to reason about and tend to quickly grow in complexity;
+    \item \textit{threading issues}: using locks inside listeners to guarantee thread safety can lead to deadlocks which are difficult to track down;
+    \item \textit{leaking callbacks}: forgetting to unregister a listener can cause memory leaks;
+    \item \textit{accidental recursion}: the order in which state is updated and listeners are notified is crucial and needs careful attention.
+\end{itemize}
+
+While basic RP is enough to deal with some of the \quotes{plagues} described above, the additional benefits introduced by FRP are necessary to completely banish these limitations during development.
+
+\subsection{Reactive Programming}
+\label{sec:rp}
+
+% paradigm description
+% application life cycle
+% models (push/pull)
+
+\subsection{From RP to FRP}
+\label{sec:rp-to-frp}
+
+\subsection{FRP in Sodium}
+\label{sec:sodium}
+
+\subsubsection{Cells vs Streams}
+
+\subsubsection{Core Primitives}
+
+\subsubsection{Operational Primitives}
+
+% time
