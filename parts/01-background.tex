@@ -63,8 +63,6 @@ Functional programming proposes the idea of \textit{functions as first-class cit
 %
 Therefore a function can take functions as arguments or return functions as outputs, in which case is called an \textit{higher order function}.
 
-% TODO: add a section for compositionality.
-
 \section{Scala 3}
 
 Scala is a programming language built on top of the Java Virtual Machine (JVM), with support for both the \textit{object-oriented} and the \textit{functional} paradigms \cite{scala-lang-spec}, effectively making it a \textit{multi-paradigm language}.
@@ -329,19 +327,14 @@ Also, while type-checking \texttt{E}, its arguments are available as givens, whi
 
 \section{Functional reactive programming}
 
-\textit{Functional Reactive Programming} (FRP) is a style of programming that unifies the approaches of \textit{Reactive Programming} (RP, see \Cref{sec:rp}) and \textit{Functional Programming} (FP, see \Cref{sec:fp}) to tame the complexity of \textit{event-driven interactive applications}.
-%
-More precisely, it is an improvement over RP that takes concepts from FP to add certain guarantees on top of it.
-%
-In particular, the most important principle borrowed from FP is \textit{compositionality}, since FRP is built on top of the idea that the nature of the parts doesn't change when composing them.
-%
-This is further explained in \Cref{sec:rp-to-frp}.
+\textit{Functional Reactive Programming} (FRP) is a style of programming that unifies the approaches of \textit{Reactive Programming} (RP) and \textit{Functional Programming} (FP, see \Cref{sec:fp}) to tame the complexity of \textit{event-driven interactive applications}.
 
-The following sections describe the conceptual evolution of the paradigms used to deal with event-driven scenarios, starting from the traditional \textit{observer pattern} evolving first into \textit{RP} and then into \textit{FRP}.
+The following sections describe the conceptual evolution of the paradigms used to deal with event-driven scenarios, starting from the traditional \textit{observer pattern} and evolving into \textit{FRP}.
 %
 The discussion is primarily based on the book \cite{blackheath2016functional} and on the \textbf{Sodium} library written by the authors of the book (see \Cref{sec:sodium} for further details).
 
 \subsection{Limitations of the observer pattern}
+\label{sec:observer}
 
 The observer pattern is a way to define event-driven logic by registering \textit{callbacks} (or \textit{listeners}) to the sources of events, creating a one-to-many dependency from the producer of events to its consumers.
 %
@@ -369,25 +362,268 @@ While the observer pattern can be pretty straightforward for simple enough scena
     \item \textit{accidental recursion}: the order in which state is updated and listeners are notified is crucial and needs careful attention.
 \end{itemize}
 
-While basic RP is enough to deal with some of the \quotes{plagues} described above, the additional benefits introduced by FRP are necessary to completely banish these limitations during development.
+\subsection{FRP paradigm}
+\label{sec:frp-paradigm}
 
-\subsection{Reactive Programming}
-\label{sec:rp}
+In order to overcome the limitations of the observer pattern, FRP proposes a paradigm shift built around the notion of \textit{continuous time-varying values} and \textit{propagation of change} \cite{bainomugisha2013survey}.
+%
+This shift allows for a more \textit{declarative} way of writing programs, since developers only have to describe them in terms of what they do and let the underlying execution model manage when changes should be propagated.
+%
+In fact, RP promotes the idea of a \textit{dependency graph of values and computation}, that dictates the flow of data and the propagation of changes occurring to each node of the graph.
 
-% paradigm description
-% application life cycle
-% models (push/pull)
+According to the terminology used in Sodium (see \Cref{sec:sodium}), the dependency graph is composed of:
+%
+\begin{itemize}
+  \item \textit{cells}, representing values that change over time (possibly in a continuous fashion);
+  \item \textit{streams}, representing sequences of discrete events.
+\end{itemize}
+%
+Cells are typically used to represent state and its evolution over time, while streams encode the occurrence of events of interest upon which state should change or actions should be taken.
 
-\subsection{From RP to FRP}
-\label{sec:rp-to-frp}
+FRP provides operators to transform and combine cells and streams and obtain new ones, mainly by \textit{mapping}, \textit{filtering}, \textit{merging} or \textit{converting one into the other}.
+%
+Since there is no standard specification of what these operators should be, they are best explained by referring to Sodium's API and underlying model in \Cref{sec:sodium}.
+%
+These operators are generally used upon startup to construct the dependency graph.
+%
+This is known as the \textit{initialization} stage.
+%
+After initialization, the FRP engine takes care of taking inputs and converting it into outputs that act upon external consumers (\textit{running} stage).
 
 \subsection{FRP in Sodium}
 \label{sec:sodium}
 
-\subsubsection{Cells vs Streams}
+Sodium \footnote{\url{https://github.com/SodiumFRP/sodium}} is a library designed to work with FRP and written by the authors of \cite{blackheath2016functional}.
+%
+Despite being mainly developed for Java, it also has a variety of adaptations for other languages, including C\#, F\# and Scala.
+%
+However, these adaptations don't always implement all the features that are included in the Java version.
+%
+For this reason, the remainder of this section presents code snippets that are written in Java.
+
+As stated before, Sodium is primarily based on two types:
+%
+\begin{itemize}
+  \item \texttt{Cell<T>} represents a value of type \texttt{T} that changes over time;
+  \item \texttt{Stream<T>} represents a sequence of emissions of events, each holding data of type \texttt{T}.
+\end{itemize}
+%
+In addition, Sodium implements a series of \textit{primitives} that can be used to perform transformations on cells and streams, ultimately defining the domain logic.
+
+The following sections give an overview of the most relevant features of Sodium.
 
 \subsubsection{Core Primitives}
 
-\subsubsection{Operational Primitives}
+Sodium is based on a set of \textit{ten primitives} that form its \textit{conceptual core}.
+%
+These primitives are where the functional part of FRP comes in.
+%
+To guarantee the compositionality
+%
+\footnote
+{
+  The property stating that the meaning of an expression is determined by the meanings of its parts and the rules used to combine them.
+  %
+  More practically, compositionality gives some guarantees that working subparts will still work when combined together.
+}
+%
+of FRP, all functions passed to the primitives must be referentially transparent.
 
-% time
+The ten primitives are described in more detail in the following paragraphs.
+
+\paragraph{Never}
+Produces a stream that will never emit any events.
+%
+\begin{lstlisting}[frame=single, language=java]
+Stream<String> never = new Stream<>();
+\end{lstlisting}
+%
+Sodium does not provide a specific \texttt{never} method, but uses the empty constructor of the \texttt{Stream<T>} class as a way to create the \textit{never} stream.
+
+\paragraph{Constant}
+Produces a constant cell that will always have the given value.
+%
+\begin{lstlisting}[frame=single, language=java]
+Cell<String> helloWorld = new Cell<>("Hello World!");
+\end{lstlisting}
+%
+Just like \textit{never}, there is no method named \textit{constant}, but the constructor of \texttt{Cell<T>} accepting a \texttt{T} creates a constant cell.
+
+\paragraph{Map (stream)}
+Produces a stream emitting the events emitted by the source stream after applying a mapping function.
+%
+\begin{lstlisting}[frame=single, language=java]
+Stream<Integer> source = ...;
+Stream<String> out = source.map(x -> Integer.toString(x));
+\end{lstlisting}  
+
+\paragraph{Map (cell)}
+Produces a cell whose value is taken from the source cell by applying a mapping function.
+%
+\begin{lstlisting}[frame=single, language=java]
+Cell<Integer> source = ...;
+Cell<String> out = source.map(x -> Integer.toString(x));
+\end{lstlisting}
+
+\paragraph{Merge}
+Combines two streams of the same type together, returning a stream that emits events from either input.
+%
+Since Sodium supports \textit{simultaneous events} (see \Cref{sec:transactions} for more details), if both input streams happen to emit at the same time the given combining function will be used to produce the final output event.
+%
+\begin{lstlisting}[frame=single, language=java]
+Stream<Integer> left = ...;
+Stream<Integer> right = ...;
+Stream<Integer> merged = left.merge(right, (l, r) -> l + r);
+\end{lstlisting}
+
+\paragraph{Hold}
+Converts a stream into a cell in such a way that the cell's value is that of the most recent event received.
+%
+The initial value for the cell (before the first event is emitted by the stream) is the argument passed to \texttt{hold()}.
+%
+\begin{lstlisting}[frame=single, language=java]
+Stream<Integer> events = ...;
+Cell<Integer> hold = events.hold(0);
+\end{lstlisting}
+
+\paragraph{Snapshot}
+Captures the value of the given cell whenever the source stream fires.
+%
+Produces a stream firing at the same time as the source stream and emitting combinations of the values from the stream and the cell using the supplied function.
+%
+\begin{lstlisting}[frame=single, language=java]
+Stream<String> trigger = ...;
+Cell<Integer> state = ...;
+Stream<String> out = trigger.snapshot(state, (t, s) -> t + s);
+\end{lstlisting}
+
+\paragraph{Filter}
+Produces a stream that emits the events from the source stream only if the pass the given predicate.
+%
+\begin{lstlisting}[frame=single, language=java]
+Stream<Integer> events = ...;
+Stream<Integer> out = events.filter(x -> x > 0);
+\end{lstlisting}
+
+\paragraph{Lift}
+Combines two or more cells into one by combining the values of all input cells using a combining function.
+%
+\begin{lstlisting}[frame=single, language=java]
+Cell<Integer> left = ...;
+Cell<Integer> right = ...;
+Cell<Integer> out = left.lift(right, (l, r) -> l + r);
+\end{lstlisting}
+
+\paragraph{Sample}
+Returns the current value of the cell it is invoked on.
+%
+\begin{lstlisting}[frame=single, language=java]
+Cell<String> state = ...;
+String currentState = state.sample();
+\end{lstlisting}
+  
+\paragraph{Switch (stream)}
+Flattens a cell of streams into a single stream that emits whenever the active stream for the cell emits.
+%
+\begin{lstlisting}[frame=single, language=java]
+Cell<Stream<Integer>> source = ...;
+Stream<Integer> out = Cell.switchS(source);
+\end{lstlisting}
+
+\paragraph{Switch (cell)}
+Flattens a cell of cells into a single cell whose value is the value of the active cell of the wrapper cell.
+\begin{lstlisting}[frame=single, language=java]
+Cell<Cell<Integer>> source = ...;
+Cell<Integer> out = Cell.switchC(source);
+\end{lstlisting}
+
+\subsubsection{External interfacing}
+
+The \textit{pure core} of Sodium is not enough to deal with all the requirements of an event-driven application.
+%
+In fact, these requirements include I/O (e.g. network communication, interfacing with the file system, \dots), GUIs, and other concerns that are typically not integrated with Sodium.
+%
+This requires a way for developers to interface the pure core with the \textit{impure} nature of external concerns, namely:
+%
+\begin{itemize}
+    \item \textit{pushing events into streams and cells};
+    \item \textit{listening to events from streams and cells}.
+\end{itemize}
+%
+These somewhat resemble the mechanisms used by the observer pattern (recall \Cref{sec:observer}), but they have special constraints and rules to keep compositionality intact, especially when working with transactions (see \Cref{sec:transactions}).
+
+\paragraph{Pushing events into streams and cells}
+Sodium comes with subclasses of \texttt{Stream<T>} and \texttt{Cell<T>} that expose a \texttt{send()} method allowing events and values to be pushed into the FRP logic.
+%
+These are, respectively, \texttt{StreamSink<T>} and \texttt{CellSink<T>}.
+%
+The idea is that a module that deals with an external concern would use these sinks internally to push data into the FRP logic, and only expose those as their \quotes{pure} counterparts.
+
+The following listing shows an example of how to turn a Swing \texttt{JButton} into a stream of its clicks.
+%
+\begin{lstlisting}[frame=single, language=java]
+public Stream<Unit> clicks(JButton button) {
+    StreamSink<Unit> clicksSink = new StreamSink<>();
+    button.addActionListener(e -> clicksSink.send(Unit.UNIT));
+    return clicksSink;
+}
+\end{lstlisting}
+
+\paragraph{Listening to events from streams and cells}
+The values of streams and cells can be made available to the rest of the application by \textit{listening} to their updates.
+%
+To do this, \texttt{Stream<T>} and \texttt{Cell<T>} have a \texttt{listen()} method to register a listener that gets notified whenever that stream fires or the value of the cell is updated.
+%
+\begin{lstlisting}[frame=single, language=java]
+public <X> void printAll(Stream<X> stream) {
+    stream.listen(x -> System.out.println("Emitted: " + x));
+}
+\end{lstlisting}
+
+\subsubsection{Transactions}
+\label{sec:transactions}
+
+Most FRP systems support the idea that multiple events can be \textit{simultaneous}.
+%
+This can be done by defining a boundary (which is called a \textit{transaction} in Sodium) in which every event is considered to be happening at the same time.
+%
+Naturally, FRP primitive should be designed to take this aspect into account, and provide a way to handle simultaneous events correctly (recall the \textit{merge} primitive for example).
+%
+All Sodium primitives are automatically run inside transactions, but developers can manually define transactions using \texttt{Transaction.run(() -> ...)} or \texttt{Transaction.runVoid(() -> ...)}.
+
+Transactions can be used primarily for two reasons:
+%
+\begin{itemize}
+    \item wrapping the construction of the dependency graph in a single instance to avoid the \textit{missed first event} plague;
+    \item \texttt{send()} multiple events that should be considered simultaneous.
+\end{itemize}
+
+\subsubsection{Looping streams and cells}
+
+In FRP there's often the need to have the definition of a cell or of a stream depend on itself.
+%
+Since programming languages (like Java in this case) do not typically allow references to variables before their declaration, Sodium provides a mechanism that simulates \textit{forward references} \footnote{Referencing an identifier that has not been declared yet.}.
+%
+These are \texttt{CellLoop<T>} and \texttt{StreamLoop<T>}.
+%
+The idea is that these classes are, respectively, subclasses of \texttt{Cell<T>} and \texttt{Stream<T>} that can act as placeholders for cells and streams before their initialization, and that can be freely used as their counterparts.
+%
+After all the dependencies have been setup and the real value for the placeholders can be initialized, this can be done by calling the \texttt{loop()} method.
+
+An example where looping is necessary could be an accumulator, which consists of a cell whose value is the sum over time of values emitted by a stream.
+%
+\begin{lstlisting}[frame=single, language=java]
+public Cell<Integer> accumulate(Stream<Integer> deltas) {
+    return Transaction.run(() -> {
+        CellLoop<Integer> output = new CellLoop<>();
+        Stream<Integer> updates = deltas.snapshot(
+            output,
+            (c, d) -> c + d
+        );
+        output.loop(updates.hold(0));
+        return output;
+    });
+}
+\end{lstlisting}
+%
+It is worth noting that looping will fail with an exception if it is not wrapped inside a transaction, in order to avoid updates coming before the call to \texttt{loop()}.
