@@ -25,8 +25,6 @@ To be pure, a function must satisfy the following properties:
     \item it must produce no observable side effects (e.g. mutate global shared state, send data over output streams, etc).
 \end{itemize}
 
-% TODO: show some examples (both positive and negative) (maybe in pseudo-code?)
-
 \paragraph{Referential transparency}
 
 A sub-expression (i.e. the application of a function) is said to be \textit{referentially transparent} if it can be safely substituted with its final value without changing the overall semantics of the complete expression that contains it.
@@ -354,7 +352,7 @@ The primary abstraction introduced by aggregate computing is the \textit{computa
 %
 A \textit{field evolution} is a dynamically changing field, and a \textit{field computation} takes field evolutions as inputs and produces field evolutions as outputs.
 %
-Such outputs are defined in such a way that they change tracking input changes.
+These outputs are defined in such a way that they change tracking input changes.
 
 The key idea of aggregate computing is that any field computation (\textit{global interpretation}) can be mapped to a \textit{single-device behavior} that is iteratively executed by all the devices in the network (\textit{local interpretation}).
 %
