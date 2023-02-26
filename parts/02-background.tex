@@ -323,14 +323,79 @@ Also, while type-checking \texttt{E}, its arguments are available as givens, whi
 
 \section{Aggregate computing}
 
-\textit{Aggregate computing} is an emerging approach
+\textit{Aggregate computing} is an emerging approach to the engineering of complex coordination for distributed systems, in particular \textit{Collective Adaptive Systems} \cite{VIROLI2019100486}.
+%
+It is mostly based on the idea that it is simpler to view system interactions in terms of information propagating through collectives of devices, rather than in terms of individual devices and their interaction with their peers and environment.
 
-\subsection{Collective Adaptive Systems}
-% self stabilization
+Aggregate computing fits particularly well when the nature of the problem requires to deal with a \textit{network of devices} with these features:
+%
+\begin{itemize}
+  \item \textbf{openness}, meaning that the environment in which devices are immersed can exhibit unexpected changes and faults;
+  \item \textbf{large scale}, with a possibly huge number of devices/agents that need to coordinate and require good abstractions to be managed;
+  \item \textbf{intrinsic adaptiveness}, that is, the ability to react to relevant events in order to guarantee overall system resilience.
+\end{itemize}
+%
+These concerns call for an approach based on \textit{self-organization}, where global and robust coordination behavior emerges from local coordination abstractions.
+
+Another goal of aggregate computing is to give developers a way to describe the behavior of distributed systems with the features described above in a \textit{composable} and \textit{declarative} fashion, in order to scale well with the complexity of the domain.
+%
+This is possible thanks to the \textit{mathematical core} of aggregate computing, that is based on \textit{computational fields} (see \Cref{sec:ac-abstractions}) and \textit{field calculus} (see \Cref{sec:field-calculus}).
+
+\subsection{Basic abstractions}
+\label{sec:ac-abstractions}
+
+Aggregate computing models a distributed system as a set $D$ of devices, ranged over by $\delta$.
+%
+On top of that, a \textit{neighboring} relation indicates the devices with which one can communicate (which is application-dependant, and can be used to describe logical or physical proximity).
+%
+In addition, each device has a set of \textit{sensors} that enable the perception of the environment.
+
+The primary abstraction introduced by aggregate computing is the \textit{computational field} (or simply \textit{field}), which is a function $\phi : \mathbf{D} \mapsto \mathcal{L}$ mapping each device $\delta \in D$ to a local value $l \in \mathcal{L}$ \cite{10.1145/3177774}.
+%
+A \textit{field evolution} is a dynamically changing field, and a \textit{field computation} takes field evolutions as inputs and produces field evolutions as outputs.
+%
+Such outputs are defined in such a way that they change tracking input changes.
+
+The key idea of aggregate computing is that any field computation (\textit{global interpretation}) can be mapped to a \textit{single-device behavior} that is iteratively executed by all the devices in the network (\textit{local interpretation}).
+%
+Each iteration executed by a device is called a \textit{computation round} and can be subdivided in three steps:
+%
+\begin{itemize}
+    \item \textbf{sense}: the device gathers information coming from its neighbors and local sensors, which are collected to create its \textit{local context} (or \textit{local state}) for the current round;
+    \item \textbf{eval}: the computation defined by the behavior is evaluated against the local context, producing an \textit{export};
+    \item \textbf{broadcast}: the export is broadcast to all the device's neighbors, which in turn collect and use this information in their own future rounds.
+\end{itemize}
 
 \subsection{Field calculus}
+\label{sec:field-calculus}
 
-\subsection{ScaFi}
+Field calculus represents a simple language that can be used to describe computations acting on fields.
+%
+While its syntax, typing, and semantics are deeply discussed in \cite{VIROLI2019100486} and are omitted here for simplicity, a brief description of its elements is presented below:
+%
+\begin{itemize}
+    \item a \textit{field calculus program} $\texttt{P}$ consists of a sequence of \textit{function declarations} $\bar{\texttt{F}}$ followed by the \textit{main expression} $\texttt{e}$;
+    \item an expression $\texttt{e}$ can be:
+    \begin{itemize}
+        \item a \textit{variable} $\texttt{x}$ (e.g. function parameters, \dots);
+        \item a \textit{local value} $l$ (e.g. booleans, numbers, strings, tuples, \dots);
+        \item a \textit{neighboring field value} $\phi$, i.e. a (per-device) mapping from the devices's neighbors to local values;
+        \item a \textit{function call} $\texttt{f}(\bar{\texttt{e}})$ to a \textit{user-declared function} or a \textit{built-in function} (e.g. maths or boolean operators, sensors, \dots);
+        \item a \textit{branching expression} $\texttt{if} (\texttt{e}_1)\{\texttt{e}_2\}\{\texttt{e}_3\}$ which splits computation into isolated sub-regions, resulting in $\texttt{e}_2$ where and when $\texttt{e}_1$ evaluates to true, and in $\texttt{e}_3$ otherwise;
+        \item a $\texttt{nbr}(\texttt{e})$ construct, which creates a neighboring field value that maps each neighbor to the latest result of evaluating $\texttt{e}$;
+        \item a $\texttt{rep}(\texttt{e}_1)\{(\texttt{x})\Rightarrow \texttt{e}_2\}$ construct, which models state evolution over time.
+    \end{itemize}
+\end{itemize}
+
+To work properly, the semantics of \texttt{nbr} and \texttt{rep} require a way to access, respectively, the last registered state of each neighbor and the last registered output of the device itself.
+%
+In addition, this process should be made in such a way that different instances of \texttt{rep} and \texttt{nbr} cannot inadvertently \quotes{swap} their respective value.
+%
+This process is called \textit{alignment}, and it has the consequence that two branches of an \texttt{if} expression execute in isolation, meaning that two devices that execute different branches cannot communicate with each other inside their branches.
+%
+In practice, this process is done by carefully constructing the export of an expression as an \textit{evaluation tree} that represents the aggregate computation.
+%
+The complete semantics of export construction and alignment can be found in Appendix C of \cite{10.1145/3177774}.
 
 \section{Functional reactive programming}
 
