@@ -1,2 +1,121 @@
 \chapter{Analysis and Design}
 \label{chap:analysis-design}
+
+Leveraging the notions coming from \Cref{chap:background}, this chapter inspects the current state of aggregate computing, identifying some of the missing features of the current model as proposed by the field calculus (\Cref{sec:current-state}).
+%
+Subsequently, \Cref{sec:proposed-model} describes a prototype of a \textit{reactive model} for aggregate computing, introducing the objectives and giving a preliminary analysis of how the proposed model is expected to fulfill them.
+%
+Finally, \Cref{sec:design} presents the major design choices that were taken prior to implementation.
+
+\section{Analysis of the current state}
+\label{sec:current-state}
+
+In order to have a comprehensive view on the subject, this section provides a brief analysis of the current state of aggregate computing, first by describing the \textit{proactive model} and identifying its limitations, then by introducing \textit{ScaFi}
+
+\subsection{Proactive model}
+
+At the current stage, field calculus and aggregate computing are based on a model where each device of the network \textit{repeatedly} executes its computation in rounds of \textit{sense-eval-broadcast}.
+%
+In particular, referring to the model discussed in \cite{10.1145/3177774}, each sense-eval-broadcast round of a device is alternated with some \textit{sleeping time} during which it collects information from neighboring devices.
+%
+This way of managing computation can be thought of as a \textit{proactive model}, since its the device that decides when computation should occur based on its internal scheduler.
+
+The proactive model has some shortcomings.
+%
+On the one hand, there is no way to granularly control the \textit{timing} and the \textit{dynamics} of computation rounds, at least not through the main operators of field calculus.
+%
+In fact, there is often the need to perform computation upon the occurrence of particular events, for example when a sensor changes its value, or when a message is received from a neighbor.
+
+On the other hand, since computations are carried out regardless of the existence of significant changes in the environment or in the knowledge of the neighborhood.
+%
+In turn, this implies that the \textit{broadcast} step is also carried out even if there is no change in the generated export, resulting in \textit{wasteful message exchange}.
+
+The shortcomings of the proactive model call for a more \textit{reactive approach}, where taking actions only upon significant changes is a pivotal concern and should be taken into account as first class in the supporting model.
+%
+A prototype for this is presented in \Cref{sec:proposed-model}.
+
+\subsection{ScaFi}
+
+This section presents a brief introduction to \textbf{ScaFi}, a Scala-based library and framework for aggregate programming \cite{scafi-docs}.
+%
+In particular, the \textit{API} and the \textit{core} of ScaFi will be analyzed in order to facilitate both the design and implementation stages, since they can be used as references to guide the whole process.
+
+ScaFi's API is heavily inspired by the field calculus language and consists of a trait defining the main constructs that can be used to describe aggregate computations:
+%
+\begin{lstlisting}[frame=single, language=scala]
+trait Constructs {
+  def nbr[A](expr: => A): A
+  def rep[A](init: =>A)(fun: (A) => A): A
+  def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A
+  def aggregate[A](f: => A): A
+  def align[K,V](key: K)(comp: K => V): V
+
+  def mid(): ID
+  def sense[A](name: CNAME): A
+  def nbrvar[A](name: CNAME): A
+}
+\end{lstlisting}
+%
+Some notes to keep in mind about ScaFi's API are:
+%
+\begin{itemize}
+    \item an expression written using the API is evaluated by each device once per computation round;
+    \item fields are represented as \textit{atomic values} (i.e. they have no particular wrapper around them) and they indicate the value of the field at the device performing that computation;
+    \item the concept of neighboring field from field calculus is not \quotes{reified}, meaning that there is no actual data structure representing it; spatial computation (i.e. the \texttt{nbr} and \texttt{nbrvar} constructs) is only available inside a special scope, given by the \texttt{foldhood} construct;
+    \item \texttt{foldhood} acts in such a way that the \texttt{expr} parameter is evaluated for each aligned neighbor (internally constructing the neighboring field) and the final output is obtained by \textit{folding} all neighboring values using \texttt{init} and \texttt{aggr};
+    \item the export for each iteration is constructed by the \textit{engine} of ScaFi, by applying side-effects to an internal data structure as these constructs get invoked, therefore constructing the evaluation tree.
+\end{itemize}
+
+This API can be used to implement an idiomatic building block of aggregate computing, which is known as \textit{gradient}.
+%
+A gradient is a numerical field that expresses the minimum distance from any device to source devices.
+%
+The implementation of a gradient using ScaFi is presented below.
+%
+\begin{lstlisting}[frame=single, language=scala]
+def gradient(src: Boolean): Double =
+  rep(Double.PositiveInfinity) { distance =>
+    mux(src) {
+      0.0
+    } {
+      minHoodPlus(nbr(distance) + nbrRange)
+    }
+  }
+\end{lstlisting}
+%
+Some notes about the implementation:
+%
+\begin{itemize}
+    \item \texttt{src} is an input field of source devices;
+    \item the \texttt{mux} operator acts like an if statement where both branches get evaluated (unlike the \texttt{branch} construct, that only evaluates the side selected by the condition); this means that both source and non-source nodes will be aligned regardless of the chosen branch;
+    \item \texttt{minHoodPlus} is an operator implemented in terms of \texttt{foldhood}, finding the minimum value for the given expression among neighbors;
+    \item the \texttt{Plus} suffix of \texttt{minHood} indicates that the device itself is not considered during the calculation of the minimum, which for the gradient has the effect of preventing devices from getting stuck on low values after a source gets deactivated;
+    \item \texttt{nbrRange} is a built-in neighboring sensor (implemented in terms of \texttt{nbrvar}) returning the estimated distance to the neighbor against which it is evaluated;
+    \item source devices are at distance 0 from source devices, therefore the \quotes{then} branch of \texttt{mux} returns \texttt{0.0};
+    \item at each device the gradient is calculated by repeatedly minimizing, for every neighbor, the sum of its currently estimated distance from the source (\texttt{nbr(distance)}) and the distance between the device and the neighbor (\texttt{nbrRange}).
+\end{itemize}
+
+\section{Proposed model}
+\label{sec:proposed-model}
+
+\subsection{Objectives}
+
+% objective:
+%   decreased waste of computation
+%   after stabilization => no computation at all
+
+\subsection{Reactive model}
+% reactive model
+
+\section{Design}
+\label{sec:design}
+% flow
+% reified neighbor field
+% context
+% primitives
+%   mid
+%   loop
+%   sensor
+%   branch
+%   nbr
+%   nbrSensor
