@@ -666,7 +666,7 @@ Transactions can be used primarily for two reasons:
 %
 \begin{itemize}
     \item wrapping the construction of the dependency graph in a single instance to avoid the \textit{missed first event} plague;
-    \item \texttt{send()} multiple events that should be considered simultaneous.
+    \item using \texttt{Sink}s to send multiple events that should be considered simultaneous.
 \end{itemize}
 
 \subsubsection{Looping streams and cells}
