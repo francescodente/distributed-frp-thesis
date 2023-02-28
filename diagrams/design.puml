@@ -1,0 +1,51 @@
+@startuml
+
+interface NeighborField<T> {
+  + neighborValues(): Map[DeviceId, T]
+  + fold(seed: T, combine: (T, T) => T): T
+}
+
+interface Flow<T> {
+  + exports(path: Seq[Slot], context: Context): Cell[Export[T]]
+}
+
+interface Export<T> {
+  + root(): T
+  + children(): Map[Slot, Export[Any]]
+  + followPath(path: Seq[Slot]): Option[Export[Any]]
+}
+
+interface Language {
+  + mid(): Flow[DeviceId]
+  + sensor[A](id: LocalSensorId): Flow[A]
+  + branch[A](cond: Flow[Boolean], th: Flow[A], el: Flow[A]): Flow[A]
+  + loop[A](init: A, f: Flow[A] => Flow[A]): Flow[A]
+  + nbr[A](a: Flow[A]): Flow[NeighborField[A]]
+  + nbrSensor[A](id: NeighborSensorId): Flow[NeighborField[A]]
+}
+
+interface NeighborInfo {
+  + sensor[A](id: NeighborSensorId): A
+  + exported(): Export[Any]
+}
+
+interface Context {
+  + selfId(): DeviceId
+  + neighbors(): Cell[Map[DeviceId, NeighborInfo]]
+  + sensor[A](id: LocalSensorId): Cell[A]
+}
+
+interface Incarnation {
+  + context(selfId: DeviceId): Context
+}
+
+Language <|-- Incarnation
+Incarnation ..> Context : creates
+Language ..> Flow : produces
+Language .up.> NeighborField : produces
+Context -- NeighborInfo : holds
+Export -- NeighborInfo : holds
+Flow ..> Export : emits
+Flow ..> Context : uses
+
+@enduml
