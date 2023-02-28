@@ -19,7 +19,7 @@ jobs:
       - name: Generate PlantUML diagrams
         uses: Timmy/plantuml-action@v1
         with:
-          args: '-tpng -o ${GITHUB_WORKSPACE}/figures/diagrams "diagrams/**.puml"'
+          args: '-tpng -o ${{ env.GITHUB_WORKSPACE }}/figures/diagrams "diagrams/**.puml"'
           
       - name: Build latex
         uses: xu-cheng/latex-action@v2
