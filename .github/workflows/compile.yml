@@ -17,7 +17,7 @@ jobs:
           submodules: recursive
       
       - name: Generate PlantUML diagrams
-        uses: Timmy/plantuml-action@v1
+        uses: cloudbees/plantuml-github-action@v1.1.0
         with:
           args: '-pdf -o "${{ github.workspace }}/figures/diagrams" "diagrams/**.puml"'
           
