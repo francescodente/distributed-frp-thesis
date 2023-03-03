@@ -15,11 +15,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      
-      - name: Generate PlantUML diagrams
-        uses: cloudbees/plantuml-github-action@v1.1.0
-        with:
-          args: -pdf -o ${{ github.workspace }}/figures/diagrams diagrams/**.puml
           
       - name: Build latex
         uses: xu-cheng/latex-action@v2

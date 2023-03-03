@@ -240,6 +240,3 @@ TSWLatexianTemp*
 
 # generated if using elsarticle.cls
 *.spl
-
-# generated PlantUML diagrams
-figures/diagrams

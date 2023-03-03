@@ -3,6 +3,7 @@
 interface NeighborField<T> {
   + neighborValues(): Map[DeviceId, T]
   + fold(seed: T, combine: (T, T) => T): T
+  {static} + lift[A, B, C](a: NeighborField[A], b: NeighborField[B], f: (A, B) => C): NeighborField[C]
 }
 
 interface Flow<T> {
@@ -17,35 +18,42 @@ interface Export<T> {
 
 interface Language {
   + mid(): Flow[DeviceId]
+  + constant[A](a: A): Flow[A]
   + sensor[A](id: LocalSensorId): Flow[A]
   + branch[A](cond: Flow[Boolean], th: Flow[A], el: Flow[A]): Flow[A]
+  + mux[A](cond: Flow[Boolean], th: Flow[A], el: Flow[A]): Flow[A]
   + loop[A](init: A, f: Flow[A] => Flow[A]): Flow[A]
   + nbr[A](a: Flow[A]): Flow[NeighborField[A]]
   + nbrSensor[A](id: NeighborSensorId): Flow[NeighborField[A]]
+  + lift[A, B, C](a: Flow[A], b: Flow[B], f: (A, B) => C): Flow[C]
 }
 
-interface NeighborInfo {
+interface NeighborState {
   + sensor[A](id: NeighborSensorId): A
   + exported(): Export[Any]
 }
 
 interface Context {
   + selfId(): DeviceId
-  + neighbors(): Cell[Map[DeviceId, NeighborInfo]]
+  + neighbors(): Cell[Map[DeviceId, NeighborState]]
   + sensor[A](id: LocalSensorId): Cell[A]
 }
 
-interface Incarnation {
-  + context(selfId: DeviceId): Context
+enum Slot {
+  {field} Operand(index: Int)
+  {field} Condition
+  {field} Then
+  {field} Else
+  {field} Nbr
+  {field} Key[T](value: T)
 }
 
-Language <|-- Incarnation
-Incarnation ..> Context : creates
 Language ..> Flow : produces
 Language .up.> NeighborField : produces
-Context -- NeighborInfo : holds
-Export -- NeighborInfo : holds
+Context o-- NeighborState
+Export --o NeighborState
 Flow ..> Export : emits
 Flow ..> Context : uses
+Export o-- Slot
 
 @enduml
