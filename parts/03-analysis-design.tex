@@ -5,7 +5,7 @@ Leveraging the notions coming from \Cref{chap:background}, this chapter inspects
 %
 Subsequently, \Cref{sec:proposed-model} describes a prototype of a \textit{reactive model} for aggregate computing, introducing the objectives and giving a preliminary analysis of how the proposed model is expected to fulfill them.
 %
-Finally, \Cref{sec:design} presents the major design choices that were taken prior to implementation.
+Finally, \Cref{sec:specification} presents the major design choices that were taken prior to implementation.
 
 \section{Analysis of the current state}
 \label{sec:current-state}
@@ -156,10 +156,10 @@ This meant that, if no event was received between two rounds, the computation wo
 %
 The reactive model, instead, handles events as soon as they are received by the device (and only in that occasion), and only broadcasts the corresponding export if it is different than the previous, effectively fulfilling the \quotes{compute only upon relevant changes} and \quotes{broadcast messages only upon changes} objectives.
 
-For what concerns the last objective (i.e. avoiding re-evaluating unaffected sub-computations), the optimized propagation of changes will be delegated to the correct use of the FRP engine and discussed further in \Cref{sec:design}.
+For what concerns the last objective (i.e. avoiding re-evaluating unaffected sub-computations), the optimized propagation of changes will be delegated to the correct use of the FRP engine and discussed further in \Cref{sec:specification}.
 
-\section{Design}
-\label{sec:design}
+\section{Specification}
+\label{sec:specification}
 
 This section analyzes the key elements of the prototypal design for the reactive model.
 %
@@ -422,17 +422,19 @@ This is shown in \Cref{fig:semantics-lift}, which depicts the case where \texttt
     \label{fig:semantics-lift}
 \end{figure}
 
+As a side note, the specification also defines a \texttt{lift} operation on instances of \texttt{NeighborField}s.
+%
+It has the effect of evaluating the given function on pairs of values associated with the same device and returning the outputs as another \texttt{NeighborField}.
+
 The final construct is \texttt{loop}.
 %
 This is designed to be an adaptation of \texttt{rep} as defined by field calculus to the reactive model.
 %
-This change was necessary due to the fact that \texttt{rep} is based on the underlying execution model structured in computation rounds.
+This change was necessary due to the fact that \texttt{rep} is based on the underlying execution model structured in computation rounds, but that's not the case in the reactive model.
 %
-This is not the case in the reactive model.
+Instead of using proactive and repeated application of a function, \texttt{loop} manages field evolution over time as a reaction to changes in the previous state.
 %
-Instead of using proactive and repeated application of a function, \texttt{loop} manages field evolution over time as a reaction to changes in the previous state and other dependent computations.
-%
-Other than an initial, atomic state, \texttt{loop} accepts a function transforming a \texttt{Flow} into another \texttt{Flow} of the same type.
+Other than the initial state, \texttt{loop} accepts a function transforming a \texttt{Flow} into another \texttt{Flow} of the same type.
 %
 These \texttt{Flow}s shall be interpreted as the input always being \quotes{one step behind} the output.
 %

@@ -1,0 +1,37 @@
+@startuml
+
+' left to right direction
+
+package core {
+  component Core
+  component Language
+  component RichLanguage
+  component Semantics
+  component Incarnation
+
+  Core -0)- Language
+  Core -0)- Semantics
+  Core -0)- RichLanguage
+  Language <|-- RichLanguage
+  Language -0)- Semantics
+  Core <|-- Incarnation
+  RichLanguage <|-- Incarnation
+  Semantics <|-- Incarnation
+}
+
+package frp {
+  component FrpEngine
+  component FrpExtensions
+}
+
+package simulation {
+  component Simulator
+  component Environment
+
+  Simulator ..> Environment
+}
+
+core .right.> frp
+simulation .up.> core
+
+@enduml

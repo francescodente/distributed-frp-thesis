@@ -687,10 +687,7 @@ An example where looping is necessary could be an accumulator, which consists of
 public Cell<Integer> accumulate(Stream<Integer> deltas) {
     return Transaction.run(() -> {
         CellLoop<Integer> output = new CellLoop<>();
-        Stream<Integer> updates = deltas.snapshot(
-            output,
-            (c, d) -> c + d
-        );
+        Stream<Integer> updates = deltas.snapshot(output, (c, d) -> c + d);
         output.loop(updates.hold(0));
         return output;
     });

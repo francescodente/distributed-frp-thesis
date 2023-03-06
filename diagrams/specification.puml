@@ -7,7 +7,7 @@ interface NeighborField<T> {
 }
 
 interface Flow<T> {
-  + exports(path: Seq[Slot], context: Context): Cell[Export[T]]
+  + run(path: Seq[Slot], context: Context): Cell[Export[T]]
 }
 
 interface Export<T> {
