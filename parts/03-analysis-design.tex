@@ -60,10 +60,10 @@ Some notes to keep in mind about ScaFi's API are:
 %
 \begin{itemize}
     \item an expression written using the API is evaluated by each device once per computation round;
-    \item fields are represented as \textit{atomic values} (i.e. they have no particular wrapper around them) and they indicate the value of the field at the device performing that computation;
+    \item fields are represented as \textit{atomic values} (i.e., they have no particular wrapper around them) and they indicate the value of the field at the device performing that computation;
     \item \texttt{sense} evaluates the sensor with the given \texttt{name}, effectively producing a field of the requested sensor value;
     \item \texttt{nbrvar} is a mechanism to perform a query against a neighboring sensor with a given \texttt{name};
-    \item the concept of neighboring field from field calculus is not \quotes{reified}, meaning that there is no actual data structure representing it; spatial computation (i.e. the \texttt{nbr} and \texttt{nbrvar} constructs) is only available inside a special scope, given by the \texttt{foldhood} construct;
+    \item the concept of neighboring field from field calculus is not \quotes{reified}, meaning that there is no actual data structure representing it; spatial computation (i.e., the \texttt{nbr} and \texttt{nbrvar} constructs) is only available inside a special scope, given by the \texttt{foldhood} construct;
     \item \texttt{foldhood} acts in such a way that the \texttt{expr} parameter is evaluated for each aligned neighbor (internally constructing the neighboring field) and the final output is obtained by \textit{folding} all neighboring values using \texttt{init} and \texttt{aggr};
     \item the export for each iteration is constructed by the \textit{engine} of ScaFi, by applying side-effects to an internal data structure as these constructs get invoked, therefore constructing the evaluation tree.
 \end{itemize}
@@ -121,6 +121,7 @@ As stated before, in order to overcome the limitations of the proactive model th
 The sections below illustrate the objectives that are expected to be fulfilled by the final implementation and a high level description of the proposed reactive model.
 
 \subsection{Objectives}
+\label{sec:objectives}
 
 The high level goal of this thesis is to provide a model that is expressive enough to allow developers to declaratively describe \textit{self-organizing} aggregate computations, while treating the dynamics and timing of relevant events as first class citizens.
 %
@@ -130,8 +131,8 @@ The main objectives to be pursued in order to accomplish the goal are:
 %
 \begin{itemize}
     \item \textbf{Compute only upon relevant changes}: computations should occur reactively only when something changes in the environment, in order to avoid wasteful resources usage;
-    \item \textbf{Broadcast messages only upon relevant changes}: each device should avoid broadcasting an export that didn't change since the last one;
-    \item \textbf{Avoid re-evaluation of unaffected sub-computations}: if a portion of the computation depends on data that didn't change, it should not be re-evaluated.
+    \item \textbf{Broadcast messages only upon relevant changes}: each device should avoid broadcasting an export that did not change since the last one;
+    \item \textbf{Avoid re-evaluation of unaffected sub-computations}: if a portion of the computation depends on data that did not change, it should not be re-evaluated.
 \end{itemize}
 
 \subsection{Reactive model}
@@ -150,13 +151,13 @@ This is dictated by the fact that one of the objectives is to have computation r
 %
 Previously, these sources of events were all handled in the \textit{sense} stage of a computation round, and were all collected together in order to construct the \textit{context} for the round itself.
 %
-However, this wasn't done in a reactive fashion, since all these events were queued up while the device was sleeping and handled all at once at the start of the sense phase.
+However, this was not done in a reactive fashion, since all these events were queued up while the device was sleeping and handled all at once at the start of the sense phase.
 %
 This meant that, if no event was received between two rounds, the computation would still happen.
 %
 The reactive model, instead, handles events as soon as they are received by the device (and only in that occasion), and only broadcasts the corresponding export if it is different than the previous, effectively fulfilling the \quotes{compute only upon relevant changes} and \quotes{broadcast messages only upon changes} objectives.
 
-For what concerns the last objective (i.e. avoiding re-evaluating unaffected sub-computations), the optimized propagation of changes will be delegated to the correct use of the FRP engine and discussed further in \Cref{sec:specification}.
+For what concerns the last objective (i.e., avoiding re-evaluating unaffected sub-computations), the optimized propagation of changes will be delegated to the correct use of the FRP engine and discussed further in \Cref{sec:specification}.
 
 \section{Specification}
 \label{sec:specification}
@@ -167,7 +168,7 @@ Note that at this stage, the discussion is not tied to any particular technology
 %
 A deeper view on how this specification was translated into code can be found in \Cref{chap:implementation}.
 % 
-There is, however, a reference to Scala's data structures (e.g. \texttt{Map}s, \texttt{Option}s) and syntax for generics, which should not be considered as an enforcement on the usage of the Scala language.
+There is, however, a reference to Scala's data structures (e.g., \texttt{Map}s, \texttt{Option}s) and syntax for generics, which should not be considered as an enforcement on the usage of the Scala language.
 
 \Cref{fig:class-diagram} shows a holistic picture of the proposed design, formalized as a UML class diagram.
 %
@@ -194,8 +195,8 @@ In particular, sources of changes are:
     \item local sensors
     \item neighbor devices information, which is expressed as a time-varying map from device identifiers to the last registered \texttt{NeighborState}, namely:
     \begin{itemize}
-        \item the value for each neighboring sensor
-        \item the last export that was received
+        \item the value for each neighboring sensor;
+        \item the last export that was received.
     \end{itemize}
 \end{itemize}
 %
@@ -203,9 +204,9 @@ On top of that, the context is tied to the device identifier with which it is as
 
 The \texttt{Export} that can be emitted by each device is represented as a tree where each child of a node is associated to a \texttt{Slot} that is unique among its siblings.
 %
-Being modeled this way, each sub-tree of the export is identified by a \textit{path} (i.e. a sequence of \texttt{Slot}s) starting from the root (an \textit{empty path}) and traversing the tree down to the node where it is rooted.
+Being modeled this way, each sub-tree of the export is identified by a \textit{path} (i.e., a sequence of \texttt{Slot}s) starting from the root (an \textit{empty path}) and traversing the tree down to the node where it is rooted.
 %
-An example of this is shown in \Cref{fig:export-example}, which depicts the export of the following expression
+An example of this is shown in \Cref{fig:export-example}, which depicts the export of the following expression:
 %
 \begin{lstlisting}[frame=single]
 branch(
@@ -258,10 +259,10 @@ Notice that this design of a \texttt{Flow} has some consequences:
     \item since exports are returned as a cell, all (sub-)computations are automatically updated when the original sources of events are updated by the context;
     \item due to the fact that the path is also passed when requesting the cell of exports, the same instance of a \texttt{Flow} can be used multiple times in different points of the same computation, making it referentially transparent;
     \item since FRP is used under the hood, the requirement of functions passed to operators of the language being referentially transparent still exists;
-    \item the main expression of an aggregate program should be evaluated from the empty path;
+    \item the main expression of an aggregate program should be evaluated from the empty path.
 \end{itemize}
 
-An important difference from the model used by ScaFi is the presence of a \textit{reified} \texttt{NeighborField} type, that is used as the returned type of operators that deal with the neighborhood, i.e. \texttt{nbr} and \texttt{nbrSensor}.
+An important difference from the model used by ScaFi is the presence of a \textit{reified} \texttt{NeighborField} type, that is used as the returned type of operators that deal with the neighborhood, i.e., \texttt{nbr} and \texttt{nbrSensor}.
 %
 A \texttt{NeighborField} is essentially a wrapper around a map from neighbor identifiers to local values, which can be folded over in order to collapse all local values into a single one.
 
@@ -284,10 +285,10 @@ Some graphical notations are:
     \item \texttt{N(\_)} expresses the collection of all the given expressions for each aligned neighbor (graphically shown with arrows);
     \item \texttt{E(\_)} denotes an atomic export whose root is the given argument;
     \item \texttt{ctx.xyz} corresponds to member \texttt{xyz} of the \texttt{Context} on which the flow is run;
-    \item \texttt{nbr.xyz} refers to member \texttt{xyz} of the current neighbor being evaluated inside of \texttt{N(\_)}
+    \item \texttt{nbr.xyz} refers to member \texttt{xyz} of the current neighbor being evaluated inside of \texttt{N(\_)}.
 \end{itemize}
 
-The simplest constructs of the language are those that are local and atomic (i.e. they work without knowledge of neighbors and they do not depend on other flows).
+The simplest constructs of the language are those that are local and atomic (i.e., they work without knowledge of neighbors and they do not depend on other flows).
 %
 These are described in \Cref{fig:semantics-local-atomic}.
 %
@@ -374,7 +375,7 @@ That is, devices running sub-computations in \texttt{t} or \texttt{e} will alway
     \label{fig:semantics-mux}
 \end{figure}
 
-Neighboring constructs, i.e. \texttt{nbr} and \texttt{nbrSensor}, require knowing which neighbors are aligned when they get evaluated, as shown in \Cref{fig:semantics-neighboring}.
+Neighboring constructs, i.e., \texttt{nbr} and \texttt{nbrSensor}, require knowing which neighbors are aligned when they get evaluated, as shown in \Cref{fig:semantics-neighboring}.
 %
 This means that, if this constructs are used at a certain path \texttt{p}, the engine should filter out all neighbors whose known export does not contain \texttt{p}.
 %
@@ -440,12 +441,12 @@ These \texttt{Flow}s shall be interpreted as the input always being \quotes{one 
 %
 The specification states that the \quotes{off-by-one} \texttt{Flow} should be constructed by aligning with the previous state of the same device, which can be read from the context leveraging the fact that the every device is a neighbor of itself (\Cref{fig:semantics-loop-next}).
 %
-In cases where alignment isn't possible (i.e. on the first evaluation or after a switch of branch), the first argument of loop should be used to construct a new export (\Cref{fig:semantics-loop-init}).
+In cases where alignment is not possible (i.e., on the first evaluation or after a switch of branch), the first argument of loop should be used to construct a new export (\Cref{fig:semantics-loop-init}).
 %
 The implementation should take care of the following caveats arising from the intrinsic self-dependency of \texttt{loop}:
 %
 \begin{itemize}
-    \item \textit{infinite recursion}: since computations are triggered by themselves changing in the past, \texttt{loop} should not cause \textit{stack overflows} and therefore should use some sort of \textit{rate-limiting} strategy (e.g. \textit{throttling});
+    \item \textit{infinite recursion}: since computations are triggered by themselves changing in the past, \texttt{loop} should not cause \textit{stack overflows} and therefore should use some sort of \textit{rate-limiting} strategy (e.g., \textit{throttling});
     \item \textit{indefinite export growth}: a flow defined in terms of itself might cause the export tree to grow on each update, since exports are are repeatedly wrapped in other exports; the implementation should take care of passing an \textit{atomic} flow as an input to the subsequent computation, in order to avoid indefinite growth.
 \end{itemize}
 %

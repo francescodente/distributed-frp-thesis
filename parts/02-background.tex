@@ -22,12 +22,12 @@ To be pure, a function must satisfy the following properties:
 %
 \begin{itemize}
     \item given the same arguments, it always returns the same value, or in other words, its output depends solely on its arguments;
-    \item it must produce no observable side effects (e.g. mutate global shared state, send data over output streams, etc).
+    \item it must produce no observable side effects (e.g., mutate global shared state, send data over output streams, etc).
 \end{itemize}
 
 \paragraph{Referential transparency}
 
-A sub-expression (i.e. the application of a function) is said to be \textit{referentially transparent} if it can be safely substituted with its final value without changing the overall semantics of the complete expression that contains it.
+A sub-expression (i.e., the application of a function) is said to be \textit{referentially transparent} if it can be safely substituted with its final value without changing the overall semantics of the complete expression that contains it.
 %
 This is a direct consequence of function purity, since a pure function's only observable effect is the value it returns for its given arguments and that value is consistent over time.
 %
@@ -53,7 +53,7 @@ One of the consequences of purity when writing code in a functional style is tha
 %
 This also means that the data structures to be used must be designed accordingly and should therefore be \textit{immutable}, allowing state changes only via creating new versions of the same data structure.
 %
-This is typically not a problem, since complex data structures (e.g. collections like lists, sets, maps, \dots) are optimized to reuse as much as possible when creating copies of themselves.
+This is typically not a problem, since complex data structures (e.g., collections like lists, sets, maps, \dots) are optimized to reuse as much as possible when creating copies of themselves.
 
 \paragraph{Higher order functions}
 
@@ -152,7 +152,7 @@ enum Tree[T]:
   case Node(x: T, left: Tree[T], right: Tree[T])
 \end{lstlisting}
 %
-which is more succinct and avoids the noise required by its predecessor.
+which is more succinct and avoids the boilerplate required by its predecessor.
 
 Finally, both approaches are well suited to be used with pattern matching (although only Scala 3 is shown here).
 %
@@ -216,7 +216,7 @@ Note that the \texttt{printer} value is declared using the \texttt{implicit} key
 
 As stated at the beginning of this section, Scala 3 replaces the \texttt{implicit} keyword with \texttt{using} and \texttt{given}.
 %
-Other than that, not very much changes in the structure of the previous code:
+Other than that, not much changes in the structure of the previous code:
 %
 \begin{lstlisting}[frame=single, language=scala]
 trait Printer:
@@ -253,7 +253,7 @@ In those cases, they are accessible through the \texttt{summon[T]} method, which
 
 Scala 3 introduced extension methods following the same principles that inspired the \texttt{given}/\texttt{using} keywords, that is the overloaded meaning of the \texttt{implicit} keyword.
 %
-In fact, prior to this version extension methods were also written using that keyword, in particular by using \texttt{implicit class}es.
+In fact, prior to this version, extension methods were also written using that keyword, in particular by using \texttt{implicit class}es.
 %
 The following listing shows how it was done:
 %
@@ -344,7 +344,7 @@ This is possible thanks to the \textit{mathematical core} of aggregate computing
 
 Aggregate computing models a distributed system as a set $D$ of devices, ranged over by $\delta$.
 %
-On top of that, a reflexive \footnote{each device is a neighbor of itself.} \textit{neighboring relation} indicates the devices with which one can communicate (which is application-dependent, and can be used to describe logical or physical proximity).
+On top of that, a reflexive~\footnote{each device is a neighbor of itself.} \textit{neighboring relation} indicates the devices with which one can communicate (which is application-dependent, and can be used to describe logical or physical proximity).
 %
 In addition, each device has a set of \textit{sensors} that enable the perception of the environment.
 
@@ -375,10 +375,10 @@ While its syntax, typing, and semantics are deeply discussed in \cite{VIROLI2019
     \item a \textit{field calculus program} $\texttt{P}$ consists of a sequence of \textit{function declarations} $\bar{\texttt{F}}$ followed by the \textit{main expression} $\texttt{e}$;
     \item an expression $\texttt{e}$ can be:
     \begin{itemize}
-        \item a \textit{variable} $\texttt{x}$ (e.g. function parameters, \dots);
-        \item a \textit{local value} $l$ (e.g. booleans, numbers, strings, tuples, \dots);
-        \item a \textit{neighboring field value} $\phi$, i.e. a (per-device) mapping from the devices's neighbors to local values;
-        \item a \textit{function call} $\texttt{f}(\bar{\texttt{e}})$ to a \textit{user-declared function} or a \textit{built-in function} (e.g. maths or boolean operators, sensors, \dots);
+        \item a \textit{variable} $\texttt{x}$ (e.g., function parameters, \dots);
+        \item a \textit{local value} $l$ (e.g., booleans, numbers, strings, tuples, \dots);
+        \item a \textit{neighboring field value} $\phi$, i.e., a (per-device) mapping from the devices's neighbors to local values;
+        \item a \textit{function call} $\texttt{f}(\bar{\texttt{e}})$ to a \textit{user-declared function} or a \textit{built-in function} (e.g., maths or boolean operators, sensors, \dots);
         \item a \textit{branching expression} $\texttt{if} (\texttt{e}_1)\{\texttt{e}_2\}\{\texttt{e}_3\}$ which splits computation into isolated sub-regions, resulting in $\texttt{e}_2$ where and when $\texttt{e}_1$ evaluates to true, and in $\texttt{e}_3$ otherwise;
         \item a $\texttt{nbr}(\texttt{e})$ construct, which creates a neighboring field value that maps each neighbor to the latest result of evaluating $\texttt{e}$;
         \item a $\texttt{rep}(\texttt{e}_1)\{(\texttt{x})\Rightarrow \texttt{e}_2\}$ construct, which models state evolution over time.
@@ -464,11 +464,11 @@ After initialization, the FRP engine takes care of taking inputs and converting 
 \subsection{FRP in Sodium}
 \label{sec:sodium}
 
-Sodium \footnote{\url{https://github.com/SodiumFRP/sodium}} is a library designed to work with FRP and written by the authors of \cite{blackheath2016functional}.
+Sodium~\footnote{\url{https://github.com/SodiumFRP/sodium}} is a library designed to work with FRP and written by the authors of \cite{blackheath2016functional}.
 %
 Despite being mainly developed for Java, it also has a variety of adaptations for other languages, including C\#, F\# and Scala.
 %
-However, these adaptations don't always implement all the features that are included in the Java version.
+However, these adaptations do not always implement all the features that are included in the Java version.
 %
 For this reason, the remainder of this section presents code snippets that are written in Java.
 
@@ -489,9 +489,7 @@ Sodium is based on a set of \textit{ten primitives} that form its \textit{concep
 %
 These primitives are where the functional part of FRP comes in.
 %
-To guarantee the compositionality
-%
-\footnote
+To guarantee the compositionality~\footnote
 {
   The property stating that the meaning of an expression is determined by the meanings of its parts and the rules used to combine them.
   %
@@ -612,7 +610,7 @@ Cell<Integer> out = Cell.switchC(source);
 
 The \textit{pure core} of Sodium is not enough to deal with all the requirements of an event-driven application.
 %
-In fact, these requirements include I/O (e.g. network communication, interfacing with the file system, \dots), GUIs, and other concerns that are typically not integrated with Sodium.
+In fact, these requirements include I/O (e.g., network communication, interfacing with the file system, \dots), GUIs, and other concerns that are typically not integrated with Sodium.
 %
 This requires a way for developers to interface the pure core with the \textit{impure} nature of external concerns, namely:
 %
@@ -673,7 +671,7 @@ Transactions can be used primarily for two reasons:
 
 In FRP there's often the need to have the definition of a cell or of a stream depend on itself.
 %
-Since programming languages (like Java in this case) do not typically allow references to variables before their declaration, Sodium provides a mechanism that simulates \textit{forward references} \footnote{Referencing an identifier that has not been declared yet.}.
+Since programming languages (like Java in this case) do not typically allow references to variables before their declaration, Sodium provides a mechanism that simulates \textit{forward references}~\footnote{Referencing an identifier that has not been declared yet.}.
 %
 These are \texttt{CellLoop<T>} and \texttt{StreamLoop<T>}.
 %
