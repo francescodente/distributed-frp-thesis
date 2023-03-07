@@ -179,9 +179,11 @@ Notice the adoption of a \texttt{Flows} factory to create the final result of \t
 %
 This factory encapsulates the logic that constructs \texttt{Flow} instances, and it is used extensively while implementing all the constructs of the language to guarantee a consistent creation of flows.
 %
-The 
+Also notice the use of \texttt{calm} in \texttt{Flows.of}, effectively avoiding the emission of the same export twice in a row.
 %
-Also notice the use of \texttt{calm} in \texttt{Flows.of}.
+This is a key implementation choice that has a strong effect on the overall behavior and performance of the library, especially in relation to the objectives outlined in \Cref{sec:objectives}.
+%
+The consequences of this choice will be examined deeply in \Cref{chap:evaluation}.
 
 \subsection{Incarnation}
 
@@ -264,7 +266,7 @@ The phases of a simulation can be summarized as follows:
 \begin{enumerate}
 	\item \textbf{spawn contexts}: for each device participating in the computation, create a \texttt{Context} instance via the incarnation;
 	\item \textbf{run the flow}: run the \texttt{Flow} that is being simulated on all the context instances, producing a cell of \texttt{Export}s for each device;
-	\item \textbf{listen to export updates}: upon changes of any cell that was produced, broadcast that export to all the contexts of neighboring devices.
+	\item \textbf{listen to export updates}: upon changes of any cell that was produced, broadcast that export to the contexts of neighboring devices.
 \end{enumerate}
 
 \Cref{lst:simulator} shows the implementation of the \texttt{Simulator} class.

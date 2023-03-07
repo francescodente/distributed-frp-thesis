@@ -63,11 +63,11 @@ Therefore a function can take functions as arguments or return functions as outp
 
 \section{Scala 3}
 
-Scala is a programming language built on top of the Java Virtual Machine (JVM), with support for both the \textit{object-oriented} and the \textit{functional} paradigms \cite{scala-lang-spec}, effectively making it a \textit{multi-paradigm language}.
+Scala is a programming language built on top of the Java Virtual Machine (JVM), with support for both the \textit{object-oriented} and the \textit{functional} paradigms \cite{10.1145/2591013}, effectively making it a \textit{multi-paradigm language}.
 %
 It is a pure object-oriented language, in fact everything is an \textit{object} and objects are defined through \textit{classes} and \textit{traits}.
 %
-It is a functional language, because it supports the idea of functions as values and allows higher order functions to be defined.
+It is a functional language, because it supports the idea of functions as values and allows higher order functions to be defined \cite{scala-lang-spec}.
 
 The main features of Scala are:
 %
@@ -342,13 +342,13 @@ This is possible thanks to the \textit{mathematical core} of aggregate computing
 \subsection{Basic abstractions}
 \label{sec:ac-abstractions}
 
-Aggregate computing models a distributed system as a set $D$ of devices, ranged over by $\delta$.
+Aggregate computing models a distributed system as a set $\mathcal{D}$ of devices, ranged over by $\delta$.
 %
 On top of that, a reflexive~\footnote{each device is a neighbor of itself.} \textit{neighboring relation} indicates the devices with which one can communicate (which is application-dependent, and can be used to describe logical or physical proximity).
 %
 In addition, each device has a set of \textit{sensors} that enable the perception of the environment.
 
-The primary abstraction introduced by aggregate computing is the \textit{computational field} (or simply \textit{field}), which is a function $\phi : \mathbf{D} \mapsto \mathcal{L}$ mapping each device $\delta \in D$ to a local value $l \in \mathcal{L}$ \cite{10.1145/3177774}.
+The primary abstraction introduced by aggregate computing is the \textit{computational field} (or simply \textit{field}), which is a function $\phi : \mathcal{D} \mapsto \mathcal{L}$ mapping each device $\delta \in \mathcal{D}$ to a local value $l \in \mathcal{L}$ \cite{10.1145/3177774}.
 %
 A \textit{field evolution} is a dynamically changing field, and a \textit{field computation} takes field evolutions as inputs and produces field evolutions as outputs.
 %

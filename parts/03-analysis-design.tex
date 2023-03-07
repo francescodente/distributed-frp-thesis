@@ -35,6 +35,7 @@ The shortcomings of the proactive model call for a more \textit{reactive approac
 A prototype for this is presented in \Cref{sec:proposed-model}.
 
 \subsection{ScaFi}
+\label{sec:scafi}
 
 This section presents a brief introduction to \textbf{ScaFi}, a Scala-based library and framework for aggregate programming \cite{scafi-docs}.
 %
@@ -131,7 +132,7 @@ The main objectives to be pursued in order to accomplish the goal are:
 %
 \begin{itemize}
     \item \textbf{Compute only upon relevant changes}: computations should occur reactively only when something changes in the environment, in order to avoid wasteful resources usage;
-    \item \textbf{Broadcast messages only upon relevant changes}: each device should avoid broadcasting an export that did not change since the last one;
+    \item \textbf{Broadcast messages only upon relevant changes}: each device should avoid broadcasting an export that did not change since the last one, with the direct consequence that no further message exchange should be required if a computation reaches a stable configuration;
     \item \textbf{Avoid re-evaluation of unaffected sub-computations}: if a portion of the computation depends on data that did not change, it should not be re-evaluated.
 \end{itemize}
 

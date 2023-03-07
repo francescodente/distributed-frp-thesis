@@ -1,6 +1,6 @@
 class SimulationIncarnation(environment: Environment,
-                            sources: Set[Int] = Set.empty,
-                            obstacles: Set[Int] = Set.empty)
+                            sources: Cell[Set[Int]] = new Cell(Set.empty),
+                            obstacles: Cell[Set[Int]] = new Cell(Set.empty))
   extends Incarnation
     with IncarnationWithEnvironment(environment)
     with TestLocalSensors
