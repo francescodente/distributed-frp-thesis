@@ -1,14 +1,14 @@
 \chapter{\introductionname}
 
-The complexities that developers are faced with nowadays when dealing with large-scale, distributed systems have grown to a point that imposes the adoption of new techniques to manage those complexities and to help reasoning about distributed software at high levels of abstraction.
+The complexities that developers face nowadays when dealing with large-scale, distributed systems have grown to a point that imposes the adoption of new techniques to manage those complexities and to help reasoning about distributed software at high levels of abstraction.
 %
-Typically, systems of this nature fall under the category of \textit{Collective Adaptive Systems}, in which a large number of devices pursues a global goal by means of \textit{strongly decentralized} interactions, while adapting its behavior to the constantly changing environment.
+Typically, systems of this nature fall under the category of \textit{Collective Adaptive Systems}, in which a large number of devices pursues a global goal by means of \textit{strongly decentralized} interactions, while adapting their behavior to the constantly changing environment.
 %
 New paradigms should allow to \textit{declaratively} specify the behavior of such types of system, while also providing \textit{composable} and \textit{reusable} building blocks.
 
-One of the most promising approaches in this matter is \textit{aggregate computing}, which focuses on the definition of behaviors of aggregates of devices, rather than thinking in terms of single entities.
+One of the most promising approaches in this matter is \textit{aggregate computing} \cite{VIROLI2019100486}, which focuses on the definition of behaviors of aggregates of devices, rather than thinking in terms of single entities.
 %
-This leads to the idea of \textit{self-organization}, thanks to which global coordination behavior \textit{emerges} from local coordination abstractions.
+This leads to the idea of \textit{self-organization} \cite{10.1145/3177774}, thanks to which global coordination behavior \textit{emerges} from local coordination abstractions.
 %
 Its foundation is given by \textit{field calculus}, a formal calculus that defines aggregate programs as the functional composition of \textit{computational fields}.
 
@@ -18,7 +18,7 @@ However, these frameworks -- and field calculus as well -- propose a \textit{pro
 %
 This means that it is not currently possible to fine-tune the overall dynamics and the timing of computations, resulting in wasteful usage of the processing resources.
 
-The objective of this thesis is to explore the issues of the proactive model, proposing a new one based on \textit{reactivity} to environmental changes, leveraging the principles of \textit{functional reactive programming} to keep the compositionality aspects intact and to improve on some of the current shortcomings.
+The objective of this thesis is to explore the potential problems connected with the current proactive model of field calculus, proposing a new one based on \textit{reactivity} to environmental changes, leveraging the principles of \textit{functional reactive programming} \cite{blackheath2016functional} to keep the compositionality aspects intact and to improve on some of the current shortcomings.
 %
 On top of that, a small, but functional prototype will be developed for said model, both to assess its feasibility and to be aware of some of the caveats that a production-ready implementation should tackle.
 %
