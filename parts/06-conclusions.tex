@@ -1,1 +1,38 @@
 \chapter{\conclusionsname}
+\label{chap:conclusions}
+
+This thesis was meant to be an exploratory study of the applicability of FRP to the aggregate computing paradigm.
+%
+This was the only goal that was known in advance, but the practical and technical objectives, as well as the boundaries that delimited the solution, were all discovered and formalized throughout the brainstorming sessions.
+%
+Despite this, everything that ended up in the proposal was implemented and verified to be compliant with the specifications, so the overall result can be considered a success.
+
+Being a prototype, what has been implemented is far from being a complete and reliable solution for reactive aggregate programs.
+%
+Nonetheless, this goes a long way in showing that a functional reactive approach to aggregate computing is certainly possible and that the benefits that it brings to the table are really valuable, therefore the following paragraphs include topics where future efforts might be directed in this regard.
+
+\paragraph{Support for real world distributed platforms}
+
+At the current stage, the library only supports being run on a simple simulator with very little features.
+%
+Since the hope is that this prototype can one day evolve into a solution for large-scale distributed system, one of the future developments would certainly need to introduce support for real-world platforms in order to make deployments on real devices possible.
+
+\paragraph{Core API improvements}
+
+At a first glance, the new API introduces some noise to the overall structure, due to the fact that, differently from ScaFi, it operates on flows instead of local values.
+%
+This in fact requires normal operators to be constantly lifted in order to be applicable to flows, introducing boilerplate code that makes programs less transparent.
+%
+In the future, some efforts could be put into researching a better API to deal with lifting operators in a more scalable and user-friendly way.
+
+\paragraph{Support for the Alchemist simulator}
+
+The simulator that was developed to showcase the library at work is nowhere near an adequate solution to test systems with complex rules and behavior.
+%
+Since \textit{Alchemist} \cite{pianini2013chemical} already constitutes a solution to the necessity of a feature-rich simulator, a future version of the library might integrate with it and provide a simple way to test aggregate programs against complex simulations.
+
+\paragraph{Improved timing control}
+
+At the moment, the granularity with which the timing of computation can be configured allows no more than reactions to standard events coming from the context.
+%
+It would be nice if the framework supported additional strategies for \textit{scheduling} and \textit{rate limiting} other than calming and throttling, maybe configurable per construct.
