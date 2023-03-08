@@ -149,22 +149,13 @@ This way of dealing with \texttt{Context} and \texttt{NeighborState}, i.e., by o
 	label={lst:semantics},
 ]{listings/Semantics.scala}
 
-The alignment process is implemented in the \texttt{alignWithNeighbors} method, shown in \Cref{lst:alignment}.
+The alignment process is implemented in the \texttt{alignWithNeighbors} method.
 %
-In practice, this corresponds to the construction of a cell of maps that hold a certain value of type \texttt{T} for all neighbors aligned at a given path.
+In practice, this corresponds to the construction of a cell of maps that hold a certain value for all neighbors aligned at a given path.
 %
-Each value \texttt{T} is extracted using a function \texttt{f} that take the sub-export at which the alignment happened with that neighbor and the current \texttt{NeighborState}.
-%
-Operationally, \texttt{alignWithNeighbors} deals with this concern by mapping the cell of the \texttt{NeighborStates} to a new one that constantly filters out neighbors that are not aligned by using the \texttt{followPath} method.
-%
-\lstinputlisting[
-	float,
-	language=scala,
-	caption={Implementation of the alignment process.},
-	label={lst:alignment},
-]{listings/Alignment.scala}
+Each value is extracted using a function that takes the sub-export at which the alignment happened with that neighbor and the current \texttt{NeighborState}.
 
-As an example of the usage of \texttt{alignWithNeighbors}, the implementation of the \texttt{nbr} construct is presented in \Cref{lst:nbr}, which gathers the neighboring values located at \texttt{path + Nbr}, where \texttt{path} is the location where the \texttt{nbr} is being evaluated.
+As an example of the usage of \texttt{alignWithNeighbors}, the implementation of the \texttt{nbr} construct is presented in \Cref{lst:nbr}, which gathers the neighboring values located at \texttt{path + Nbr}, where \texttt{path} is the location where \texttt{nbr} is being evaluated.
 %
 Subsequently, it replaces the old value computed at the previous evaluation with the new one exported by \texttt{a} before wrapping everything in a new export, following the semantics of \texttt{nbr}.
 %
@@ -217,15 +208,6 @@ A simulation can in fact be carried out by creating \textit{in-memory} versions 
 The incarnation implemented for the testing purposes of this thesis is based on a certain network topology defined by an \texttt{Environment} object.
 %
 Simply put, an environment determines the number, the position and the neighboring relation of a device network in 2D space, assuming device identifiers are progressive integers.
-%
-\Cref{lst:environment} displays the definition of the trait modeling an \texttt{Environment}.
-%
-\lstinputlisting[
-	float,
-	language=scala,
-	caption={The \texttt{Environment} trait.},
-	label={lst:environment},
-]{listings/Environment.scala}
 
 In order to create a concrete \texttt{Incarnation} to be used in the simulator, several mixins were introduced to favor modularity and composition.
 %

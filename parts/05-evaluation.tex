@@ -29,7 +29,6 @@ Being based on the same ideas as the \texttt{SimulationIncarnation}, the source 
 As an example of the principles that guided this process, \Cref{lst:semantics-tests} shows a portion of the \texttt{SemanticsTests} class that includes tests for the \texttt{lift} construct.
 %
 \lstinputlisting[
-    float,
     language=scala,
     caption={A portion of the \texttt{SemanticsTests} class including tests for the \texttt{lift} construct.},
     label={lst:semantics-tests},
@@ -47,6 +46,12 @@ To this purpose, a series of sample aggregate programs, for which the expected o
 
 \Cref{lst:gradient-with-obstacles} shows the implementation of a comprehensive sample that showcases almost every feature of the language, i.e., a \textit{gradient with obstacles}.
 %
+\lstinputlisting[
+    language=scala,
+    caption={A sample aggregate program computing a gradient with obstacles.},
+    label={lst:gradient-with-obstacles},
+]{listings/GradientSample.scala}
+%
 The environment used by this sample is a 5x5 grid, where each device is a neighbor of the nearest device in each horizontal and vertical direction (\Cref{fig:gradient-environment}).
 %
 In addition, the device with ID $0$ is a source node, while devices $2$, $7$, and $12$ are obstacles.
@@ -57,13 +62,6 @@ In addition, the device with ID $0$ is a source node, while devices $2$, $7$, an
     \caption{The reference environment for the gradient with obstacles.}
     \label{fig:gradient-environment}
 \end{figure}
-%
-\lstinputlisting[
-    float,
-    language=scala,
-    caption={A sample aggregate program computing a gradient with obstacles.},
-    label={lst:gradient-with-obstacles},
-]{listings/GradientSample.scala}
 
 The gradient with obstacles sample can be built starting from a simple \textit{gradient}, thanks to the compositionality of aggregate computing.
 %
@@ -120,7 +118,6 @@ This is, indeed, a violation of the principles of referential transparency of fu
 In fact, running this program results in \quotes{\textit{Doing some intense computation...}} being printed only once, while the device broadcasts messages five times instead, demonstrating that sub-computations that are not affected by changes in the environment are not re-evaluated.
 %
 \lstinputlisting[
-    float,
     language=scala,
     caption={A sample aggregate program verifying that sub-computations do not get re-evaluated if their dependencies do not change.},
     label={lst:test-re-evaluation},

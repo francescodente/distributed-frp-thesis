@@ -41,21 +41,14 @@ This section presents a brief introduction to \textbf{ScaFi}, a Scala-based libr
 %
 In particular, the \textit{API} and the \textit{core} of ScaFi will be analyzed in order to facilitate both the design and implementation stages, since they can be used as references to guide the whole process.
 
-ScaFi's API is heavily inspired by the field calculus' language and consists of a trait defining the main constructs that can be used to describe aggregate computations:
+ScaFi's API is heavily inspired by the field calculus' language and consists of a trait defining the main constructs that can be used to describe aggregate computations (\Cref{lst:scafi-constructs})
 %
-\begin{lstlisting}[frame=single, language=scala]
-trait Constructs {
-  def nbr[A](expr: => A): A
-  def rep[A](init: =>A)(fun: (A) => A): A
-  def foldhood[A](init: => A)(aggr: (A, A) => A)(expr: => A): A
-  def aggregate[A](f: => A): A
-  def align[K,V](key: K)(comp: K => V): V
-
-  def mid(): ID
-  def sense[A](name: CNAME): A
-  def nbrvar[A](name: CNAME): A
-}
-\end{lstlisting}
+\lstinputlisting[
+    float,
+    language=scala,
+    caption={The constructs of the core API of ScaFi.},
+    label={lst:scafi-constructs},
+]{listings/ScafiConstructs.scala}
 %
 Some notes to keep in mind about ScaFi's API are:
 %
@@ -89,18 +82,14 @@ A gradient is a numerical field that expresses the minimum distance from any dev
     \label{fig:gradient}
 \end{figure}
 %
-The implementation of a gradient using ScaFi is presented below.
+The implementation of a gradient using ScaFi is presented in \Cref{lst:scafi-gradient}.
 %
-\begin{lstlisting}[frame=single, language=scala]
-def gradient(src: Boolean): Double =
-  rep(Double.PositiveInfinity) { distance =>
-    mux(src) {
-      0.0
-    } {
-      minHoodPlus(nbr(distance) + nbrRange)
-    }
-  }
-\end{lstlisting}
+\lstinputlisting[
+	float,
+	language=scala,
+	caption={Implementation of a gradient using ScaFi},
+	label={lst:scafi-gradient},
+]{listings/ScafiGradient.scala}
 %
 Some notes about the implementation:
 %
@@ -227,14 +216,14 @@ Note that, for now, the semantics that lead to this particular shape of export a
 %
 It is sufficient to know that each syntactic element of the expression above (with the exception of \texttt{constant(0)} which is excluded due to branching) corresponds to some path inside the tree, as follows:
 %
-\begin{verbatim}
-[]                  <=>  branch(...)
-[Condition]         <=>  sensor[Boolean](SomeSensor)
-[Then]              <=>  mux(...)
-[Then / Condition]  <=>  sensor[Boolean](AnotherSensor)
-[Then / Then]       <=>  constant(1)
-[Then / Else]       <=>  constant(2)
-\end{verbatim}
+\begin{align*}
+    \pathEquivalence{}{branch(...)}
+    \pathEquivalence{Condition}{sensor[Boolean](SomeSensor)}
+    \pathEquivalence{Then}{mux(...)}
+    \pathEquivalence{Then / Condition}{sensor[Boolean](AnotherSensor)}
+    \pathEquivalence{Then / Then}{constant(1)}
+    \pathEquivalence{Then / Else}{constant(2)}
+\end{align*}
 %
 \begin{figure}
     \centering
