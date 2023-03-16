@@ -1,7 +1,7 @@
 \chapter{Background}
 \label{chap:background}
 
-This chapter gives an high level overview of the concepts, paradigms, and frameworks that were used as references throughout the development of this thesis.
+This chapter gives a high level overview of the concepts, paradigms, and frameworks that were used as references throughout the development of this thesis.
 
 \section{Functional programming}
 \label{sec:fp}
@@ -335,7 +335,7 @@ Aggregate computing fits particularly well when the nature of the problem requir
 %
 These concerns call for an approach based on \textit{self-organization}, where global and robust coordination behavior emerges from local coordination abstractions.
 
-Another goal of aggregate computing is to give developers a way to describe the behavior of distributed systems with the features described above in a \textit{composable} and \textit{declarative} fashion, in order to scale well with the complexity of the domain.
+Another goal of aggregate computing is to give developers a way to describe the behavior of distributed systems with the features described above in a \textit{composable} and \textit{declarative} fashion, in order to better scale with the complexity of the domain.
 %
 This is possible thanks to the \textit{mathematical core} of aggregate computing, that is based on \textit{computational fields} (see \Cref{sec:ac-abstractions}) and \textit{field calculus} (see \Cref{sec:field-calculus}).
 
@@ -438,7 +438,7 @@ While the observer pattern can be pretty straightforward for simple enough scena
 
 In order to overcome the limitations of the observer pattern, FRP proposes a paradigm shift built around the notion of \textit{continuous time-varying values} and \textit{propagation of change} \cite{bainomugisha2013survey}.
 %
-This shift allows for a more \textit{declarative} way of writing programs, since developers only have to describe them in terms of what they do and let the underlying execution model manage when changes should be propagated.
+This shift allows for a more \textit{declarative} way of writing programs, since developers only have to describe them in terms of what they do -- instead of how to do it -- and let the underlying execution model manage when changes should be propagated.
 %
 In fact, RP promotes the idea of a \textit{dependency graph of values and computation}, that dictates the flow of data and the propagation of changes occurring to each node of the graph.
 
